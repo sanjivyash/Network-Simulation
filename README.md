@@ -112,7 +112,7 @@ class LAN:
         self.connections = set() # store all bridgee objects connected
         self.hosts = set() # store all hosts on the network
         self.dp = None # designated port, if any
-        self.root = None # root port if any
+        self.root = None # root bridge if any
         self.dist = None  # distance from root port
         self.buffer = [] # buffer all received messages from connected bridges before forwarding 
 
