@@ -12,7 +12,9 @@ class Bridge:
 
 		self.forward = False
 		self.table = {}
+
 		self.flag = flag
+		self.trace = []
 
 	def connect(self, lan):
 		self.connections.add(lan)
@@ -20,7 +22,7 @@ class Bridge:
 	def send(self, t):
 		if self.root is self or self.forward:
 			if self.flag:
-				print(f'{t} s {self} ({self.root} {self.dist} {self})')
+				self.trace.append(f'{t} s {self} ({self.root} {self.dist} {self})')
 			
 			for lan in self.connections:
 				lan.receive((self.root, self.dist, self), t)
@@ -31,7 +33,7 @@ class Bridge:
 		root, dist, bridge = msg
 
 		if self.flag:
-			print(f'{t+1} r {self} ({root} {dist} {bridge})')
+			self.trace.append(f'{t+1} r {self} ({root} {dist} {bridge})')
 		
 		dist += 1
 

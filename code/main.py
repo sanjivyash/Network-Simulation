@@ -6,7 +6,7 @@ def parse(inp):
 	return vals[0][:-1], vals[1:]
 
 
-def spanningTree(bridges, lans):
+def spanningTree(bridges, lans, flag):
 	run  = True
 	t = 0
 
@@ -32,6 +32,14 @@ def spanningTree(bridges, lans):
 				run = True
 				break
 
+	# print trace output
+	if flag:
+		trace = []
+		
+		for i in bridges:
+			trace.extend(bridges[i].trace)
+		print('\n'.join(sorted(trace)))
+
 	# print required output
 	for i in bridges:
 		output = []
@@ -48,7 +56,7 @@ def spanningTree(bridges, lans):
 		print(f'{bridge}: ' + ' '.join(sorted(output)))
 
 
-def pathways(bridges, lans, tasks):
+def pathways(bridges, lans, tasks, flag):
 	hosts ={}
 
 	for i in lans:
@@ -101,5 +109,5 @@ if __name__ == '__main__':
 	for i in range(L):
 		tasks.append(input().split())
 
-	spanningTree(bridges, lans)
-	pathways(bridges, lans, tasks)
+	spanningTree(bridges, lans, flag)
+	pathways(bridges, lans, tasks, flag)
