@@ -8,7 +8,7 @@ def parse(inp):
 
 def spanningTree(bridges, lans, flag):
 	run  = True
-	t = 0
+	t = 1
 
 	while run:
 		# send or forward config messages from bridges
@@ -38,6 +38,7 @@ def spanningTree(bridges, lans, flag):
 		
 		for i in bridges:
 			trace.extend(bridges[i].trace)
+			bridges[i].trace.clear()
 		print('\n'.join(sorted(trace)))
 
 	# print required output
@@ -64,8 +65,17 @@ def pathways(bridges, lans, tasks, flag):
 			hosts[h] = lans[i]
 
 	for task in tasks:
-		receiver, sender = task
-		hosts[sender].transmit(receiver)
+		origin, destination = task
+		hosts[origin].transmit(None, task, 0)
+
+		# print trace output
+		if flag:
+			trace = []
+			
+			for i in bridges:
+				trace.extend(bridges[i].trace)
+				bridges[i].trace.clear()
+			print('\n'.join(sorted(trace)))
 
 		# print required output
 		for i in range(len(bridges)):

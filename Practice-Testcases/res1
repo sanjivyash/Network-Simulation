@@ -119,7 +119,6 @@ H9 | F
 B5:
 HOST ID | FORWARDING PORT
 H1 | C
-H3 | C
 H4 | C
 H9 | C
 B6:
@@ -131,7 +130,6 @@ H9 | F
 B7:
 HOST ID | FORWARDING PORT
 H1 | D
-H3 | D
 H4 | D
 H9 | D
 

@@ -82,8 +82,7 @@ class Bridge:
         ARGS:
             target (str): the host which is the receiver
             sender (None or LAN): LAN from which call was received 
-        RETURN:
-            (None or Bridge): return self if target was found in the forward pass, otherwise return None 
+        RETURN: None
         '''
         # do not send the packet back to sender
 
@@ -166,8 +165,7 @@ class LAN:
         ARGS:
             target (str): the host which is the receiver
             sender (None or Bridge): Bridge from which call was received 
-        RETURN:
-            (None or Bridge): return self if target was found in the forward pass or network itself, otherwise return None 
+        RETURN: None 
         '''
         # do not send the packet back to sender
 

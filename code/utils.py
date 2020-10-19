@@ -52,22 +52,22 @@ class Bridge:
 	def active(self, lan):
 		return self.rp is lan or lan.dp is self
 
-	def transmit(self, target, sender=None):
-		if target in self.table:
-			if self.table[target] is not sender:
-				self.table[target].transmit(target)
+	def transmit(self, sender, header, t):
+		origin, destination = header
+		self.table[origin] = sender
+
+		if self.flag:
+			self.trace.append(f'{t} r {self} {origin}-->{destination}')
+			self.trace.append(f'{t} s {self} {origin}-->{destination}')
+
+		if destination in self.table:
+			if self.table[destination] is not sender:
+				self.table[destination].transmit(self, header, t)
 			return
 
 		for lan in self.connections:
 			if self.active(lan) and lan is not sender:
-				port = lan.transmit(target, self)
-				if port is not None:
-					self.table[target] = port 
-
-		if target not in self.table:
-			self.table[target] = sender
-		else:
-			return self
+				lan.transmit(self, header, t)
 		
 	def __repr__(self):
 		return self.name 
@@ -120,20 +120,12 @@ class LAN:
 	def active(self, bridge):
 		return self.dp is bridge or bridge.rp is self
 
-	def transmit(self, target, sender=None):
-		if target in self.hosts:
-			connector = self
-		else:
-			connector = None
+	def transmit(self, sender, header, t):
+		origin, destination = header
 
 		for bridge in self.connections:
 			if self.active(bridge) and bridge is not sender:
-				port = bridge.transmit(target, self)
-				if port is not None:
-					connector = port
-
-		if connector is not None:
-			return self
+				port = bridge.transmit(self, header, t+1)
 
 	def __repr__(self):
 		return self.name
