@@ -37,7 +37,9 @@ class Bridge:
 
         self.forward = False # to forward config message or not
         self.table = {} # store host | forwarding port 
+        
         self.flag = flag
+        self.trace = [] # stores trace messages if flag is true
 
     def connect(self, lan):
         '''
@@ -76,12 +78,13 @@ class Bridge:
             (bool): True iff port is active
         '''
 
-    def transmit(self, target, sender=None):
+    def transmit(self, sender, header, t):
         '''
         DESC: forward received packet from LAN to receiver
         ARGS:
-            target (str): the host which is the receiver
-            sender (None or LAN): LAN from which call was received 
+            sender (str): the host which sent the packet
+            header (tuple): contains source and destination address
+            t (int): relative time at which packet was forwarded 
         RETURN: None
         '''
         # do not send the packet back to sender
@@ -159,12 +162,13 @@ class LAN:
             (bool): True iff connection is active
         '''
 
-    def transmit(self, target, sender=None):
+    def transmit(self, sender, header, t):
         '''
         DESC: forward received packet from LAN to receiver
         ARGS:
-            target (str): the host which is the receiver
-            sender (None or Bridge): Bridge from which call was received 
+            sender (Bridge or None): the bridge, if any, which sent the packet
+            header (tuple): contains source and destination address
+            t (int): relative time at which packet was forwarded
         RETURN: None 
         '''
         # do not send the packet back to sender
