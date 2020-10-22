@@ -109,6 +109,7 @@ class LAN:
         DESC: create and initialise a bridge
         ARGS: 
             name (str): provide a name to the bridge like A or B
+        RETURRN: None
         '''
         self.name = name
         self.connections = set() # store all bridgee objects connected
@@ -184,3 +185,12 @@ class LAN:
 ```
 
 ## Algorithm
+The protocol has been implemented to closey simulate the actual process:
+-  In the beginning, every bridge considers itself as the root (reflected by the initialisation of the class), and hence all bridges send the configuration messages.
+-  The LANs buffer the different messages that they receive from the bridges simultaneously, before forwarding these messages to other brodges.
+-  The bridges which realise that they are not roots stop generating configuration messages. For such bridges, send is activated only when ```self.forward=True```, which happens when they receive a better config message atleast as good as theirs.
+-  The LANs simply buffer and forward without checking the messages, the messages are discarded or forwarded after checking only in the bridges.
+-  The simulation stops only when all bridges and LANs have recognised the same bridge as the root bridge.
+
+The management of tables also follows the actual process closely:
+- 
