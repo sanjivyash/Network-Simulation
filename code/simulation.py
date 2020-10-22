@@ -1,4 +1,5 @@
-from utils import Bridge, LAN
+from bridge import Bridge
+from lan import LAN
 
 
 def parse(inp):
