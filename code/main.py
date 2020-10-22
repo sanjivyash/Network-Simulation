@@ -14,21 +14,13 @@ def spanningTree(bridges, lans, flag):
 		# send or forward config messages from bridges
 		for i in bridges:
 			bridges[i].send(t)
-		# receive config messages at bridges
-		for i in lans:
-			lans[i].send()
-		
 		t += 1
-		# check if the root bridge has been accepted by everyone
+
+		# check if some bridge was mutated
 		run = False
 
 		for i in bridges:
-			if bridges[i].root.id > 0:
-				run = True
-				break
-
-		for i in lans:
-			if lans[i].root is None or lans[i].root.id > 0:
+			if bridges[i].mutate:
 				run = True
 				break
 
@@ -43,14 +35,14 @@ def spanningTree(bridges, lans, flag):
 
 	# print required output
 	for i in bridges:
-		output = []
 		bridge = bridges[i]
+		output = []
 
 		for lan in bridge.connections:
-			if lan.dp is bridge:
-				output.append(f'{lan}-DP')
-			elif bridge.rp is lan:
+			if bridge.rp is lan:
 				output.append(f'{lan}-RP')
+			elif lan in bridge.dp:
+				output.append(f'{lan}-DP')
 			else:
 				output.append(f'{lan}-NP')
 

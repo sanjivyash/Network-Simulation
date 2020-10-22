@@ -8,8 +8,10 @@ class Bridge:
 		self.dist = 0
 		
 		self.rp = None
+		self.dp = set()
 		self.next = None 
 
+		self.mutate = False
 		self.forward = False
 		self.table = {}
 
@@ -18,6 +20,7 @@ class Bridge:
 
 	def connect(self, lan):
 		self.connections.add(lan)
+		self.dp.add(lan)
 
 	def send(self, t):
 		if self.root is self or self.forward:
@@ -25,15 +28,21 @@ class Bridge:
 				self.trace.append(f'{t} s {self} ({self.root} {self.dist} {self})')
 			
 			for lan in self.connections:
-				lan.receive((self.root, self.dist, self), t)
+				lan.forward((self.root, self.dist, self), t)
 			
-			self.forward = False
+		self.mutate = False
+		self.forward = False
 
 	def receive(self, msg, lan, t):
 		root, dist, bridge = msg
-
+		
 		if self.flag:
 			self.trace.append(f'{t+1} r {self} ({root} {dist} {bridge})')
+
+		if self.dist > dist or (self.dist == dist and self.id > bridge.id): 
+			if lan in self.dp:
+				self.dp.remove(lan)
+				self.mutate = True
 		
 		dist += 1
 
@@ -41,18 +50,22 @@ class Bridge:
 			return
 		if self.next:
 			if root.id == self.root.id and dist == self.dist and bridge.id > self.next.id:
-				return 
+				return
 
+		self.mutate = True
 		self.forward = True
 		self.root = root
-		self.dist = dist 
+		self.dist = dist
 		self.rp = lan
 		self.next = bridge
 
 	def active(self, lan):
-		return self.rp is lan or lan.dp is self
+		return self.rp is lan or lan in self.dp
 
 	def transmit(self, sender, header, t):
+		if not self.active(sender):
+			return
+
 		origin, destination = header
 		self.table[origin] = sender
 
@@ -78,10 +91,6 @@ class LAN:
 		self.name = name
 		self.connections = set()
 		self.hosts = set()
-		self.dp = None
-		self.root = None
-		self.dist = None
-		self.buffer = []
 
 	def connect(self, bridge):
 		self.connections.add(bridge) 
@@ -89,42 +98,18 @@ class LAN:
 	def network(self, host):
 		self.hosts.add(host)
 
-	def send(self):
-		while self.buffer:
-			message, t = self.buffer.pop()
-			sender = message[2]
+	def forward(self, message, t):
+		sender = message[2]
 
-			for bridge in self.connections:
-				if bridge is not sender:
-					bridge.receive(message, self, t)
-
-	def receive(self, message, t):
-		self.buffer.append((message, t))
-		root, dist, sender = message
-
-		if self.root is None:
-			self.root = root
-			self.dist = dist
-			self.dp = sender
-			return
-
-		if root.id > self.root.id or (root.id == self.root.id and dist > self.dist):
-			return
-		if root.id == self.root.id and dist == self.dist and sender.id > self.dp.id:
-			return 
-
-		self.root = root 
-		self.dist = dist
-		self.dp = sender
-
-	def active(self, bridge):
-		return self.dp is bridge or bridge.rp is self
+		for bridge in self.connections:
+			if bridge is not sender:
+				bridge.receive(message, self, t)
 
 	def transmit(self, sender, header, t):
 		origin, destination = header
 
 		for bridge in self.connections:
-			if self.active(bridge) and bridge is not sender:
+			if bridge is not sender:
 				port = bridge.transmit(self, header, t+1)
 
 	def __repr__(self):

@@ -33,8 +33,10 @@ class Bridge:
         self.dist = 0 # distance from self.root
         
         self.rp = None # root port if any
+        self.dp = set() # set of all designated ports
         self.next = None # next bridge on path to root, if any
 
+        self.mutate = False # state of object has changed or not
         self.forward = False # to forward config message or not
         self.table = {} # store host | forwarding port 
         
@@ -67,7 +69,9 @@ class Bridge:
             t (int): relative time at which message was received
         RETURN: None
         '''
+        # drop the packet if sender port inactive
         # self.forward set to true only if root updated
+        # self.mutate set to true only if some state variable altered
 
     def active(self, lan):
         '''
@@ -114,10 +118,6 @@ class LAN:
         self.name = name
         self.connections = set() # store all bridgee objects connected
         self.hosts = set() # store all hosts on the network
-        self.dp = None # designated port, if any
-        self.root = None # root bridge if any
-        self.dist = None  # distance from root port
-        self.buffer = [] # buffer all received messages from connected bridges before forwarding 
 
     def connect(self, bridge):
         '''
@@ -129,22 +129,13 @@ class LAN:
 
     def network(self, host):
         '''
-        DESC: connect all hosts on the network
+        DESC: identify all hosts on the network
         ARGS:
             host (str): host to be connected
         RETURN: None
         '''
 
-    def send(self):
-        '''
-        DESC: send config messages to all connected LANs
-        ARGS: 
-            self
-        RETURN: None
-        '''
-        # buffer is emptied
-
-    def receive(self, message, t):
+    def forward(self, message, t):
         '''
         DESC: receive config messages forwarded by connected LANs
         ARGS:
@@ -152,16 +143,7 @@ class LAN:
             t (int): relative time at which message was received
         RETURN: None
         '''
-        # message contains info of sender, so no extra argument needed
-
-    def active(self, bridge):
-        '''
-        DESC: specify whether a bridge connection is active after the protocol is run
-        ARGS:
-            bridge (Bridge): the connection which is to be checked
-        RETURN:
-            (bool): True iff connection is active
-        '''
+        # forward to all bridges except sender
 
     def transmit(self, sender, header, t):
         '''
@@ -172,7 +154,7 @@ class LAN:
             t (int): relative time at which packet was forwarded
         RETURN: None 
         '''
-        # do not send the packet back to sender
+        # forward to all bridges except sender
 
     def __repr__(self):
         '''
@@ -186,11 +168,14 @@ class LAN:
 
 ## Algorithm
 The protocol has been implemented to closey simulate the actual process:
--  In the beginning, every bridge considers itself as the root (reflected by the initialisation of the class), and hence all bridges send the configuration messages.
--  The LANs buffer the different messages that they receive from the bridges simultaneously, before forwarding these messages to other brodges.
--  The bridges which realise that they are not roots stop generating configuration messages. For such bridges, send is activated only when ```self.forward=True```, which happens when they receive a better config message atleast as good as theirs.
--  The LANs simply buffer and forward without checking the messages, the messages are discarded or forwarded after checking only in the bridges.
--  The simulation stops only when all bridges and LANs have recognised the same bridge as the root bridge.
+- In the beginning, every bridge considers itself as the root (reflected by the initialisation of the class), and hence all bridges send the configuration messages.
+- The bridges which realise that they are not roots stop generating configuration messages. For such bridges, send is activated only when ```self.forward = True```, i.e., when they receive a config message atleast as good as theirs.
+- The LANs simply forward the received message to all bridges except receiver.
+- The bridges change a port to NP if they receive a message which has a smaller distance from root bridge or has a smaller root bridge as the sender. 
+- The simulation stops only when all bridges have ```self.mutate = False```, i.e., none of the bridges changed their dtate during the cycle.
 
 The management of tables also follows the actual process closely:
-- 
+- If destination not in bridge table, the packet is forwarded to all active ports except sender.
+- If destination is in bridge table, the packet is forwarded to the port as directed by the table.
+- The LANs simply forward the packet to all bridges except sender.
+- If a bridge receives a message, it updates its table with the sender as the forwarding port for origin host of the packet.
