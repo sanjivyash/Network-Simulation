@@ -9,7 +9,7 @@ To run the program, use the command:
 from the root directory.
 
 ## Utility Classes
-In the file ```code/utils.py``` lie two Python classes:
+In the ```code``` folder lie two Python files ```code/bridge.py``` and ```code/lan.py```, with their respective classes:
 
 ### Bridge
 In this class, we have modelled a bridge in an ethernet network. It has the following methods:
