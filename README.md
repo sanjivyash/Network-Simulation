@@ -167,6 +167,8 @@ class LAN:
 ```
 
 ## Algorithm
+
+### Spanning Tree Protocol
 The protocol has been implemented to closey simulate the actual process:
 - In the beginning, every bridge considers itself as the root (reflected by the initialisation of the class), and hence all bridges send the configuration messages.
 - The bridges which realise that they are not roots stop generating configuration messages. For such bridges, send is activated only when ```self.forward = True```, i.e., when they receive a config message atleast as good as theirs.
@@ -174,6 +176,7 @@ The protocol has been implemented to closey simulate the actual process:
 - The bridges change a port to NP if they receive a message which has a smaller distance from root bridge or has a smaller root bridge as the sender. 
 - The simulation stops only when all bridges have ```self.mutate = False```, i.e., none of the bridges changed their dtate during the cycle.
 
+### Bridge Forwarding Tables
 The management of tables also follows the actual process closely:
 - If destination not in bridge table, the packet is forwarded to all active ports except sender.
 - If destination is in bridge table, the packet is forwarded to the port as directed by the table.
