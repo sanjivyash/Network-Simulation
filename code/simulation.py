@@ -35,7 +35,7 @@ def spanningTree(bridges, lans, flag):
 		print('\n'.join(sorted(trace)))
 
 	# print required output
-	for i in bridges:
+	for i in range(len(bridges)):
 		bridge = bridges[i]
 		output = []
 
