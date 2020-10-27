@@ -4,7 +4,7 @@ This project is an attempt to simulate the spanning tree protocol.
 ## Executing the Program
 To run the program, use the command:
 ```
-./execute $input-file-path $output-file-path
+bash execute $input-file-path $output-file-path
 ```
 from the root directory.
 
